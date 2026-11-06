@@ -29,8 +29,21 @@ const mailLimiter = rateLimit({
   message: { success: false, error: "Too many requests. Try again later." },
 });
 app.post("/sendmail", mailLimiter, async function (req, res) {
+  var subject = req.body.subject;
   var message = req.body.message;
   var emailList = req.body.emailList;
+
+  // check 0: subject must have text
+  if (typeof subject !== "string" || subject.trim() === "") {
+    return res
+      .status(400)
+      .json({ success: false, error: "Subject is required." });
+  }
+  if (subject.length > 150) {
+    return res
+      .status(400)
+      .json({ success: false, error: "Subject is too long." });
+  }
 
   // check 1: message must have text
   if (!message || message.trim() === "") {
@@ -106,7 +119,7 @@ app.post("/sendmail", mailLimiter, async function (req, res) {
       await transporter.sendMail({
         from: user,
         to: emailList[i],
-        subject: "Bulk Mail App Test Msg",
+        subject: subject.trim(),
         text: message.trim(),
       });
       console.log("Email sent to :" + emailList[i]);
