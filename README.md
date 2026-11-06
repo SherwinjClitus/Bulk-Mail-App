@@ -3,14 +3,14 @@
 A full-stack web app for sending one message to multiple email addresses. Upload an Excel spreadsheet containing email addresses, enter your message, and send it to the valid addresses found in column A.
 
 [![React](https://img.shields.io/badge/React-Vite-61DAFB?logo=react&logoColor=white)](https://react.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS- styling-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-styling-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![Node.js](https://img.shields.io/badge/Node.js-runtime-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![Express](https://img.shields.io/badge/Express-API-000000?logo=express&logoColor=white)](https://expressjs.com/)
 [![MongoDB Atlas](https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/atlas)
 
 ## Live Demo
 
-- **Frontend:** [Open the deployed app](https://bulk-mail-app-swart-nine.vercel.app/)
+- **Frontend:** [https://bulk-mail-app-swart-nine.vercel.app/](https://bulk-mail-app-swart-nine.vercel.app/)
 - **Backend:** [https://bulk-mail-app-oxks.onrender.com](https://bulk-mail-app-oxks.onrender.com)
 
 
