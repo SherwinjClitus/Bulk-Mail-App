@@ -10,14 +10,30 @@ export function TextareaButton() {
   const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const MAX_FILE_SIZE = 2 * 1024 * 1024;
   const MAX_MESSAGE_LENGTH = 5000;
+  const MAX_SUBJECT_LENGTH = 150;
 
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState(false);
   const [emailList, setEmailList] = useState([]);
+  const [subject, setSubject] = useState("");
 
   const [messageError, setMessageError] = useState("");
   const [fileError, setFileError] = useState("");
   const [fileInfo, setFileInfo] = useState("");
+  const [subjectError, setSubjectError] = useState("");
+
+  function handleSubject(event) {
+    const value = event.target.value;
+    setSubject(value);
+
+    if (value.length > MAX_SUBJECT_LENGTH) {
+      setSubjectError(
+        `Subject cannot exceed ${MAX_SUBJECT_LENGTH} characters.`,
+      );
+    } else {
+      setSubjectError("");
+    }
+  }
 
   function handleMessage(event) {
     const value = event.target.value;
@@ -32,7 +48,13 @@ export function TextareaButton() {
     }
   }
   function send() {
-    // 1. check again at the moment of clicking
+    if (!subject.trim()) {
+      setSubjectError("Please enter a subject before sending.");
+      return;
+    }
+    if (subject.length > MAX_SUBJECT_LENGTH) {
+      return;
+    }
     if (!message.trim()) {
       setMessageError("Please type a message before sending.");
       return;
@@ -49,7 +71,8 @@ export function TextareaButton() {
     setStatus(true);
 
     axios
-      .post("http://localhost:5000/sendmail", {
+      .post(import.meta.env.VITE_API_URL + "/sendmail", {
+        subject: subject.trim(),
         message: message.trim(),
         emailList: emailList,
       })
@@ -162,12 +185,26 @@ export function TextareaButton() {
 
   const canSend =
     !status &&
+    subject.trim() !== "" &&
+    subject.length <= MAX_SUBJECT_LENGTH &&
     message.trim() !== "" &&
     message.length <= MAX_MESSAGE_LENGTH &&
     emailList.length > 0;
 
   return (
     <div className="grid w-full grid-cols-1 gap-5">
+      {/* Email Subject */}
+      <Field className="min-w-0">
+        <FieldLabel htmlFor="subject">Email Subject</FieldLabel>
+        <Input
+          id="subject"
+          type="text"
+          placeholder="Enter the email subject..."
+          onChange={handleSubject}
+          value={subject}
+        />
+        {subjectError && <p className="text-sm text-red-500">{subjectError}</p>}
+      </Field>
       {/* Email Message */}
       <Field className="min-w-0">
         <FieldLabel htmlFor="message">Email Message</FieldLabel>
