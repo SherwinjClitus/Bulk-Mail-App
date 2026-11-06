@@ -10,14 +10,9 @@ A full-stack web app for sending one message to multiple email addresses. Upload
 
 ## Live Demo
 
-- **Frontend:** [Open the deployed app](<add Vercel URL>)
+- **Frontend:** [Open the deployed app](https://bulk-mail-app-swart-nine.vercel.app/)
 - **Backend:** [https://bulk-mail-app-oxks.onrender.com](https://bulk-mail-app-oxks.onrender.com)
 
-> The frontend URL is a placeholder until the deployed Vercel URL is added. The free Render service may sleep after roughly 15 minutes of inactivity, so the first request can take about 50 seconds.
-
-## Screenshots
-
-_Add screenshots of the application here._
 
 ## Features
 
