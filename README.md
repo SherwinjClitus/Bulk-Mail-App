@@ -200,6 +200,4 @@ The endpoint is limited to 5 requests per 15 minutes per IP. The server uses asy
 
 ## Author
 
-Sherwin
-
 Made with ❤️ by Sherin
