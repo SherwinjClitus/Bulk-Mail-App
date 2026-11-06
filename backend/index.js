@@ -6,6 +6,8 @@ const app = express();
 const mongoose = require("mongoose");
 const rateLimit = require("express-rate-limit");
 
+app.set("trust proxy", 1);
+
 app.use(cors());
 app.use(express.json());
 
