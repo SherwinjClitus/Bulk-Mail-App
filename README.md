@@ -17,8 +17,12 @@ A full-stack web app for sending one message to many email addresses. Enter a su
 The backend runs on Render's free tier, which sleeps after about 15 minutes of inactivity. The first request after that can take around 50 seconds.
 
 ## Screenshots
+Home Page
+<img width="1737" height="833" alt="image" src="https://github.com/user-attachments/assets/ea675055-5cb7-4143-a78c-88f68b972045" />
+Email history Sheet
+<img width="1736" height="840" alt="image" src="https://github.com/user-attachments/assets/ec142a20-080a-48d5-a262-62921ee42c3d" />
 
-Add screenshots of the application here.
+
 
 ## Features
 
