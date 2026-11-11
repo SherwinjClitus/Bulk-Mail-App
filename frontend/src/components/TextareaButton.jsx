@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { HistorySheet } from "@/components/HistorySheet";
 import { useState } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
@@ -244,6 +245,7 @@ export function TextareaButton() {
       >
         {status ? "Sending mail" : "Send mail"}
       </Button>
+      <HistorySheet />
     </div>
   );
 }
