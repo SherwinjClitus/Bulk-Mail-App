@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const nodemailer = require("nodemailer");
+// const nodemailer = require("nodemailer");
 const app = express();
 const mongoose = require("mongoose");
 const rateLimit = require("express-rate-limit");
@@ -20,7 +20,11 @@ mongoose
     console.log("Failed to connect to DB", error.message);
   });
 
-const crendentials = mongoose.model("credentials", {}, "bulkmail");
+// const crendentials = mongoose.model("credentials", {}, "bulkmail");
+
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
+const SENDER_EMAIL = process.env.SENDER_EMAIL;
+const SENDER_NAME = "Bulk Mail App";
 
 // Create a transporter using SMTP
 const mailLimiter = rateLimit({
@@ -98,30 +102,38 @@ app.post("/sendmail", mailLimiter, async function (req, res) {
   //   .catch(function (error) {
   //     console.log(error);
   //   });
+  if (!BREVO_API_KEY || !SENDER_EMAIL) {
+    return res
+      .status(500)
+      .json({ success: false, error: "Mail service is not configured." });
+  }
+
   try {
-    const data = await crendentials.find();
-
-    if (data.length === 0) {
-      return res
-        .status(500)
-        .json({ success: false, error: "Mail credentials not found." });
-    }
-
-    const user = data[0].toJSON().user;
-    const pass = data[0].toJSON().pass;
-
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: { user: user, pass: pass },
-    });
-
     for (var i = 0; i < emailList.length; i++) {
-      await transporter.sendMail({
-        from: user,
-        to: emailList[i],
-        subject: subject.trim(),
-        text: message.trim(),
+      const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+          "api-key": BREVO_API_KEY,
+          "content-type": "application/json",
+          accept: "application/json",
+        },
+        body: JSON.stringify({
+          sender: { name: SENDER_NAME, email: SENDER_EMAIL },
+          to: [{ email: emailList[i] }],
+          subject: subject.trim(),
+          textContent: message.trim(),
+        }),
       });
+
+      if (!response.ok) {
+        const errorBody = await response.json().catch(function () {
+          return {};
+        });
+        throw new Error(
+          "Brevo " + response.status + ": " + (errorBody.message || "failed"),
+        );
+      }
+
       console.log("Email sent to :" + emailList[i]);
     }
 
