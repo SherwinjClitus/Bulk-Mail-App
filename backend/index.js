@@ -21,6 +21,25 @@ mongoose
   });
 
 // const crendentials = mongoose.model("credentials", {}, "bulkmail");
+const mailRecordSchema = new mongoose.Schema(
+  {
+    subject: { type: String, required: true },
+    message: { type: String, required: true },
+    recipients: { type: [String], default: [] },
+    totalCount: { type: Number, default: 0 },
+    sentCount: { type: Number, default: 0 },
+    failedCount: { type: Number, default: 0 },
+    status: {
+      type: String,
+      enum: ["success", "partial", "failed"],
+      required: true,
+    },
+    errorMessage: { type: String, default: "" },
+  },
+  { timestamps: true },
+);
+
+const MailRecord = mongoose.model("MailRecord", mailRecordSchema);
 
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
 const SENDER_EMAIL = process.env.SENDER_EMAIL;
@@ -108,8 +127,12 @@ app.post("/sendmail", mailLimiter, async function (req, res) {
       .json({ success: false, error: "Mail service is not configured." });
   }
 
-  try {
-    for (var i = 0; i < emailList.length; i++) {
+  const failedEmails = [];
+  let sentCount = 0;
+  let lastError = "";
+
+  for (var i = 0; i < emailList.length; i++) {
+    try {
       const response = await fetch("https://api.brevo.com/v3/smtp/email", {
         method: "POST",
         headers: {
@@ -134,13 +157,68 @@ app.post("/sendmail", mailLimiter, async function (req, res) {
         );
       }
 
+      sentCount++;
       console.log("Email sent to :" + emailList[i]);
+    } catch (error) {
+      failedEmails.push(emailList[i]);
+      lastError = error.message;
+      console.log("Failed for " + emailList[i] + ": " + error.message);
     }
+  }
 
-    res.json({ success: true });
+  const failedCount = failedEmails.length;
+  let status = "success";
+  if (sentCount === 0) {
+    status = "failed";
+  } else if (failedCount > 0) {
+    status = "partial";
+  }
+  // save one record for this send (success, partial or failed)
+  try {
+    await MailRecord.create({
+      subject: subject.trim(),
+      message: message.trim(),
+      recipients: emailList,
+      totalCount: emailList.length,
+      sentCount: sentCount,
+      failedCount: failedCount,
+      status: status,
+      errorMessage: status === "success" ? "" : lastError,
+    });
+  } catch (error) {
+    console.log("Could not save mail record:", error.message);
+  }
+
+  if (status === "failed") {
+    return res.status(500).json({
+      success: false,
+      error: "Failed to send emails.",
+      status: status,
+      sentCount: sentCount,
+      failedCount: failedCount,
+    });
+  }
+
+  res.json({
+    success: true,
+    status: status,
+    sentCount: sentCount,
+    failedCount: failedCount,
+  });
+});
+
+app.get("/history", async function (req, res) {
+  try {
+    const records = await MailRecord.find()
+      .select("subject status totalCount sentCount failedCount createdAt")
+      .sort({ createdAt: -1 })
+      .limit(50)
+      .lean();
+
+    res.json({ success: true, records: records });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ success: false, error: "Failed to send emails." });
+    res.status(500).json({ success: false, error: "Could not load history." });
   }
 });
 
